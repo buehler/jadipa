@@ -1,0 +1,23 @@
+[package]
+name = "jadipa-ffi"
+publish = false
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[lib]
+name = "jadipa"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+jadipa_core = { package = "jadipa", path = "../core", default-features = false, features = [
+    "patch",
+    "diff",
+    "merge_patch",
+] }
+serde_json = "1.0.149"
+boltffi = "0.25.0"

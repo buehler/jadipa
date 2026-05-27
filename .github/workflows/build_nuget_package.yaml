@@ -1,0 +1,71 @@
+name: Build Nuget Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      package-version:
+        required: false
+        type: string
+        default: "0.0.0"
+  workflow_call:
+    inputs:
+      build-binaries:
+        required: false
+        type: boolean
+        default: false
+      package-version:
+        required: false
+        type: string
+        default: "0.0.0"
+
+jobs:
+  build-native-libs:
+    if: inputs.build-binaries || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/build_native_binaries.yaml
+
+  build-nuget:
+    name: Build binaries - ${{ matrix.target }}
+    needs: build-native-libs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo install boltffi_cli
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: native-x86_64-unknown-linux-gnu
+          path: bindings/dotnet/Jadipa/runtimes/linux-x64/native/
+      - uses: actions/download-artifact@v7
+        with:
+          name: native-aarch64-unknown-linux-gnu
+          path: bindings/dotnet/Jadipa/runtimes/linux-arm64/native/
+      - uses: actions/download-artifact@v7
+        with:
+          name: native-x86_64-pc-windows-msvc
+          path: bindings/dotnet/Jadipa/runtimes/win-x64/native/
+      - uses: actions/download-artifact@v7
+        with:
+          name: native-aarch64-apple-darwin
+          path: bindings/dotnet/Jadipa/runtimes/osx-arm64/native/
+      - uses: actions/download-artifact@v7
+        with:
+          name: native-x86_64-apple-darwin
+          path: bindings/dotnet/Jadipa/runtimes/osx-x64/native/
+
+      - run: boltffi generate csharp
+        working-directory: crates/ffi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - run: dotnet pack --configuration Release --output packages/ /p:Version=${{ inputs.package-version }}
+        working-directory: bindings/dotnet/Jadipa
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nuget-package
+          path: bindings/dotnet/Jadipa/packages/*.nupkg

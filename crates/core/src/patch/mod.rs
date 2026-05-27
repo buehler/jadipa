@@ -12,4 +12,4 @@ mod operations;
 mod patch;
 
 pub use operations::PatchOperation;
-pub use patch::Patch;
+pub use patch::{Patch, PatchError};

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>Christoph Bühler</Authors>
+    <Owner>cbuehler</Owner>
+    <PackageProjectUrl>TODO</PackageProjectUrl>
+    <RepositoryUrl>TODO</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicense>Apache-2.0</PackageLicense>
+    <!-- <PackageIcon>icon.png</PackageIcon> -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifiers>osx-arm64;osx-x64;linux-x64;linux-arm64;win-x64</RuntimeIdentifiers>
+    <PackageId>Jadipa</PackageId>
+    <Version>0.0.0-development</Version>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src/**/*.cs" />
+
+    <None Include="README.md"
+      Pack="true"
+      PackagePath="\" />
+    <None Include="runtimes/**/*"
+      Pack="true"
+      PackagePath="%(Identity)" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,23 @@
+[workspace]
+release_always = false
+git_release_enable = false
+git_tag_enable = false
+changelog_update = true
+
+[[package]]
+name = "jadipa"
+publish = true
+release = true
+git_release_enable = true
+git_tag_enable = true
+changelog_update = true
+changelog_path = "./CHANGELOG.md"
+publish_all_features = true
+
+[[package]]
+name = "jadipa-ffi"
+publish = false
+release = false
+git_release_enable = false
+git_tag_enable = false
+changelog_update = false

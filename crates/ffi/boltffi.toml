@@ -1,0 +1,7 @@
+[package]
+name = "jadipa"
+
+[targets.csharp]
+enabled = true
+output = "../../bindings/dotnet/Jadipa/src"
+package_id = "Jadipa"

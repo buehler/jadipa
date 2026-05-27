@@ -1,7 +1,13 @@
 [package]
 name = "jadipa"
-version = "0.0.0-development"
-edition = "2024"
+description = "A Rust library for JSON utils like creating and applying JSON Patches (RFC 6902) and JSON Merge Patches (RFC 7396)."
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [features]
 default = ["patch", "diff"]
@@ -27,5 +33,6 @@ thiserror = "2.0.18"
 [dev-dependencies]
 yare = "3.0.0"
 
-[workspace]
-members = ["ffi"]
+[[example]]
+name = "patch_example"
+required-features = ["patch"]

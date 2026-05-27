@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-plz:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      releases-created: ${{ steps.release-plz.outputs.releases_created }}
+      version: ${{ steps.version.outputs.version }}
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+
+      - id: release-plz
+        uses: release-plz/action@v0.5
+        with:
+          command: release-pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN || secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
+      - id: release
+        uses: release-plz/action@v0.5
+        with:
+          command: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN || secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
+      - id: version
+        if: steps.release.outputs.releases_created == 'true'
+        env:
+          RELEASES: ${{ steps.release.outputs.releases }}
+        run: |
+          version=$(echo "$RELEASES" | jq -r '.[] | select(.package_name == "jadipa") | .version' | head -n1)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build-nuget:
+    name: Build NuGet package
+    needs: release-plz
+    if: needs.release-plz.outputs.releases-created == 'true'
+    uses: ./.github/workflows/build_nuget_package.yaml
+    with:
+      build-binaries: true
+      package-version: ${{ needs.release-plz.outputs.version }}
+
+  publish-nuget:
+    name: Publish NuGet package
+    needs: build-nuget
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: nuget-package
+          path: packages
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - run: dotnet nuget push "packages/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
