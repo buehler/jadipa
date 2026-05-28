@@ -21,3 +21,24 @@ release = false
 git_release_enable = false
 git_tag_enable = false
 changelog_update = false
+
+[changelog]
+commit_parsers = [
+    { message = "^feat", group = "Features" },
+    { message = "^fix", group = "Bug Fixes" },
+    { message = "^perf", group = "Performance Improvements" },
+    { message = "^deps", group = "Dependencies" },
+    { message = "^revert", group = "Reverts" },
+    { message = "^docs", group = "Documentation" },
+    { message = "^style", group = "Styles" },
+    { message = "^chore", group = "Miscellaneous Chores" },
+    { message = "^refactor", group = "Code Refactoring" },
+    { message = "^test", group = "Tests" },
+    { message = "^build", group = "Build System" },
+    { message = "^ci", group = "Continuous Integration" },
+    { message = "^security", group = "Security" },
+    { message = "^deprecated", group = "Deprecated" },
+    { message = "^changed", group = "Changed" },
+    { message = "^removed", group = "Removed" },
+    { message = "^.*", group = "Other" },
+]
