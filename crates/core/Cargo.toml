@@ -35,5 +35,5 @@ thiserror = "2.0.18"
 yare = "3.0.0"
 
 [[example]]
-name = "patch_example"
+name = "patches"
 required-features = ["patch"]
