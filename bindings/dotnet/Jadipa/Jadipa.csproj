@@ -3,15 +3,19 @@
   <PropertyGroup>
     <Authors>Christoph Bühler</Authors>
     <Owner>cbuehler</Owner>
-    <PackageProjectUrl>TODO</PackageProjectUrl>
-    <RepositoryUrl>TODO</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/buehler/jadipa</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/buehler/jadipa.git</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicense>Apache-2.0</PackageLicense>
     <!-- <PackageIcon>icon.png</PackageIcon> -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Deterministic>true</Deterministic>
+    <DebugType>portable</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup>
