@@ -1,6 +1,7 @@
 [package]
 name = "jadipa"
 description = "A Rust library for JSON utils like creating and applying JSON Patches (RFC 6902) and JSON Merge Patches (RFC 7396)."
+readme = "README.md"
 edition.workspace = true
 version.workspace = true
 license.workspace = true
