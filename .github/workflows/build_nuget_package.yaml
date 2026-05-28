@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/build_native_binaries.yaml
 
   build-nuget:
-    name: Build binaries - ${{ matrix.target }}
+    name: Build NuGet package
     needs: build-native-libs
     runs-on: ubuntu-latest
 

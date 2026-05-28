@@ -10,7 +10,7 @@ jobs:
     name: Release Please
     runs-on: ubuntu-latest
     outputs:
-      releases-created: ${{ steps.release-plz.outputs.releases_created }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
       version: ${{ steps.version.outputs.version }}
     permissions:
       id-token: write
@@ -27,8 +27,7 @@ jobs:
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
 
-      - id: release-plz
-        uses: release-plz/action@v0.5
+      - uses: release-plz/action@v0.5
         with:
           command: release-pr
         env:
@@ -49,12 +48,13 @@ jobs:
           RELEASES: ${{ steps.release.outputs.releases }}
         run: |
           version=$(echo "$RELEASES" | jq -r '.[] | select(.package_name == "jadipa") | .version' | head -n1)
+          echo "new version: $version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
   build-nuget:
     name: Build NuGet package
     needs: release-plz
-    if: needs.release-plz.outputs.releases-created == 'true'
+    if: needs.release-plz.outputs.releases_created == 'true'
     uses: ./.github/workflows/build_nuget_package.yaml
     with:
       build-binaries: true
@@ -63,6 +63,7 @@ jobs:
   publish-nuget:
     name: Publish NuGet package
     needs: build-nuget
+    if: needs.build-nuget.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
