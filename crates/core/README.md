@@ -6,6 +6,7 @@ The crate is built around `serde_json::Value` and currently exposes:
 
 - `pointer`: JSON Pointer support as defined by [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901).
 - `patch`: JSON Patch support as defined by [RFC 6902](https://www.rfc-editor.org/rfc/rfc6902).
+- `merge_patch`: JSON Merge Patch support as defined by [RFC 7396](https://www.rfc-editor.org/rfc/rfc7396).
 
 ## Install
 
@@ -17,7 +18,7 @@ cargo add jadipa
 
 - `patch`: enables JSON Patch parsing and application.
 - `diff`: reserved for JSON Patch diff generation; depends on `patch`.
-- `merge_patch`: reserved for JSON Merge Patch support.
+- `merge_patch`: enables JSON Merge Patch application.
 
 Default features: `patch`, `diff`.
 
@@ -54,6 +55,47 @@ assert_eq!(target, json!({
 Patch operations are applied in order. Application stops at the first failing operation. `apply` returns a patched clone and does not mutate the input value.
 
 Supported operations: `add`, `remove`, `replace`, `move`, `copy`, `test`.
+
+## JSON Merge Patch
+
+Enable the `merge_patch` feature to use this module.
+
+```rust
+use jadipa::merge_patch;
+use serde_json::json;
+
+let target = json!({
+    "title": "Goodbye!",
+    "author": {
+        "givenName": "John",
+        "familyName": "Doe"
+    },
+    "tags": ["example", "sample"]
+});
+
+let patch = json!({
+    "title": "Hello!",
+    "author": {
+        "familyName": null
+    },
+    "tags": ["example"]
+});
+
+let patched = merge_patch::apply(&target, &patch);
+
+assert_eq!(patched, json!({
+    "title": "Hello!",
+    "author": {
+        "givenName": "John"
+    },
+    "tags": ["example"]
+}));
+assert_eq!(target["title"], "Goodbye!");
+```
+
+Object merge patches add, replace, recursively patch, or remove object members. A `null` value in an object patch removes that member. Non-object merge patches replace the entire target value. Arrays are replaced as complete values.
+
+Use `merge_patch::apply` to return a patched clone, or `merge_patch::apply_mut` to patch a `serde_json::Value` in place.
 
 ## JSON Pointer
 

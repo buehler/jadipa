@@ -2,7 +2,7 @@
 
 Jadipa is a .NET binding for the Jadipa JSON DiffPatch core library.
 
-The package applies JSON Patch documents as defined by [RFC 6902](https://www.rfc-editor.org/rfc/rfc6902) to JSON values addressed with JSON Pointer paths as defined by [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901).
+The package applies JSON Patch documents as defined by [RFC 6902](https://www.rfc-editor.org/rfc/rfc6902) to JSON values addressed with JSON Pointer paths as defined by [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901). It also applies JSON Merge Patch documents as defined by [RFC 7396](https://www.rfc-editor.org/rfc/rfc7396).
 
 ## Installation
 
@@ -18,7 +18,7 @@ The package targets `net10.0` and ships native runtime assets for:
 - `linux-arm64`
 - `win-x64`
 
-## Usage
+## JSON Patch Usage
 
 ```csharp
 using Jadipa;
@@ -49,7 +49,7 @@ var patchJson = """
 
 try
 {
-    var patchedJson = Jadipa.Jadipa.ApplyPatchJson(targetJson, patchJson);
+    var patchedJson = Patch.ApplyJson(targetJson, patchJson);
     Console.WriteLine(patchedJson);
 }
 catch (JadipaErrorException ex)
@@ -58,7 +58,7 @@ catch (JadipaErrorException ex)
 }
 ```
 
-`ApplyPatchJson` returns a new compact JSON string. The input JSON string is not modified.
+`Patch.ApplyJson` returns a new compact JSON string. The input JSON string is not modified.
 
 ## JSON Patch
 
@@ -72,6 +72,47 @@ Supported operations:
 - `move`: removes the value at `from` and adds it at `path`.
 - `copy`: copies the value at `from` to `path`.
 - `test`: checks that the value at `path` equals the supplied `value`.
+
+## JSON Merge Patch Usage
+
+```csharp
+using Jadipa;
+
+var targetJson = """
+{
+  "title": "Goodbye!",
+  "author": {
+    "givenName": "John",
+    "familyName": "Doe"
+  },
+  "tags": ["example", "sample"],
+  "content": "This will be unchanged"
+}
+""";
+
+var patchJson = """
+{
+  "title": "Hello!",
+  "phoneNumber": "+01-123-456-7890",
+  "author": {
+    "familyName": null
+  },
+  "tags": ["example"]
+}
+""";
+
+try
+{
+    var patchedJson = MergePatch.ApplyJson(targetJson, patchJson);
+    Console.WriteLine(patchedJson);
+}
+catch (JadipaErrorException ex)
+{
+    Console.Error.WriteLine(ex.Message);
+}
+```
+
+`MergePatch.ApplyJson` returns a new compact JSON string. Object merge patches add, replace, recursively patch, or remove object members. A `null` value in an object patch removes that member. Non-object merge patches replace the entire target value. Arrays are replaced as complete values.
 
 ## JSON Pointer Paths
 
@@ -102,14 +143,14 @@ The binding throws `JadipaErrorException` when the Rust core returns an error. T
 Error variants:
 
 - `JadipaError.InvalidJson`: the target JSON could not be parsed.
-- `JadipaError.InvalidPatch`: the patch document could not be parsed as JSON Patch.
+- `JadipaError.InvalidPatch`: the patch document could not be parsed as JSON Patch or JSON Merge Patch.
 - `JadipaError.PatchApplication`: a patch operation failed, for example because a path was missing, an array index was invalid, or a `test` operation failed.
 - `JadipaError.Serialization`: the patched value could not be serialized back to JSON.
 
 ```csharp
 try
 {
-    var patchedJson = Jadipa.Jadipa.ApplyPatchJson("""{"name":"old"}""", """
+    var patchedJson = Patch.ApplyJson("""{"name":"old"}""", """
     [
       { "op": "replace", "path": "/missing", "value": "new" }
     ]

@@ -2,11 +2,11 @@
 
 Jadipa is a JSON DiffPatch project centered on standards-based JSON document mutation.
 
-The Rust core currently provides JSON Pointer support ([RFC 6901](https://www.rfc-editor.org/rfc/rfc6901)) and JSON Patch support ([RFC 6902](https://www.rfc-editor.org/rfc/rfc6902)). The .NET binding exposes the patch API through a NuGet package backed by native Rust binaries.
+The Rust core currently provides JSON Pointer support ([RFC 6901](https://www.rfc-editor.org/rfc/rfc6901)), JSON Patch support ([RFC 6902](https://www.rfc-editor.org/rfc/rfc6902)), and JSON Merge Patch support ([RFC 7396](https://www.rfc-editor.org/rfc/rfc7396)). The .NET binding exposes the patch APIs through a NuGet package backed by native Rust binaries.
 
 ## Repository Layout
 
-- `crates/core`: Rust library for JSON pointers and patches.
+- `crates/core`: Rust library for JSON pointers, JSON Patch, and JSON Merge Patch.
 - `crates/ffi`: FFI layer used to expose core functionality to bindings.
 - `bindings/dotnet/Jadipa`: .NET package project.
 - `bindings/dotnet/Jadipa.Tests`: .NET binding tests.
@@ -65,7 +65,8 @@ The NuGet package includes native assets for `osx-arm64`, `osx-x64`, `linux-x64`
 The .NET package exposes:
 
 ```csharp
-Jadipa.Jadipa.ApplyPatchJson(string targetJson, string patchJson)
+Jadipa.Patch.ApplyJson(string targetJson, string patchJson)
+Jadipa.MergePatch.ApplyJson(string targetJson, string patchJson)
 ```
 
-It returns the patched JSON as a compact string and throws `JadipaErrorException` for invalid target JSON, invalid patch documents, patch application failures, or serialization failures.
+Both methods return the patched JSON as a compact string and throw `JadipaErrorException` for invalid target JSON, invalid patch documents, patch application failures where applicable, or serialization failures. `Patch.ApplyJson` expects a JSON Patch operation array. `MergePatch.ApplyJson` expects any valid JSON Merge Patch value.
