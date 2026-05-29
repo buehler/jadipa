@@ -35,8 +35,9 @@
 
 // #[cfg(feature = "diff")]
 // pub mod diff;
-// #[cfg(feature = "merge_patch")]
-// pub mod merge_patch;
+
+#[cfg(feature = "merge_patch")]
+pub mod merge_patch;
 
 #[cfg(feature = "patch")]
 pub mod patch;
