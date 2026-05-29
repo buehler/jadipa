@@ -37,3 +37,7 @@ yare = "3.0.0"
 [[example]]
 name = "patches"
 required-features = ["patch"]
+
+[[example]]
+name = "merge_patch"
+required-features = ["merge_patch"]
