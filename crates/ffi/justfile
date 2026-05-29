@@ -1,0 +1,34 @@
+default:
+    just -l
+
+generate_csharp_binding:
+    rm -rf ../../bindings/dotnet/Jadipa/src
+    boltffi generate csharp
+
+dotnet_runtime_arch := if arch() == "aarch64" { "arm64" } else { "x64" }
+
+[macos]
+build_ffi:
+    @echo "build for {{arch()}}-apple-darwin, copy to dotnet runtime osx-{{dotnet_runtime_arch}}"
+    cargo build -p jadipa-ffi --target {{arch()}}-apple-darwin --release
+    rm -rf ../../bindings/dotnet/Jadipa/runtimes/osx-{{dotnet_runtime_arch}}
+    mkdir -p ../../bindings/dotnet/Jadipa/runtimes/osx-{{dotnet_runtime_arch}}/native
+    cp ../../target/{{arch()}}-apple-darwin/release/libjadipa.dylib ../../bindings/dotnet/Jadipa/runtimes/osx-{{dotnet_runtime_arch}}/native
+
+[macos]
+[working-directory("../../bindings/dotnet/Jadipa")]
+pack_nuget version="0.0.0":
+    rm -rf packages
+    dotnet pack \
+        --configuration Release \
+        --output packages \
+        /p:Version={{version}} \
+        /p:ContinuousIntegrationBuild=true \
+        /p:RepositoryCommit=$(git rev-parse HEAD)
+
+build_nuget_package: generate_csharp_binding build_ffi pack_nuget
+
+[working-directory("../../bindings/dotnet/Jadipa.Tests")]
+update_dotnet_binding_test: build_nuget_package
+    rm -rf packages
+    dotnet restore
