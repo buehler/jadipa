@@ -1,5 +1,7 @@
 ﻿namespace Jadipa.Tests;
 
+using System.Text.Json.Nodes;
+
 public class PatchTests
 {
     [Fact]
@@ -14,7 +16,7 @@ public class PatchTests
         ]
         """;
 
-        var result = Jadipa.ApplyPatchJson(target, patch);
+        var result = Patch.ApplyJson(target, patch);
 
         Assert.Contains("\"name\":\"new\"", result);
         Assert.Contains("\"items\":[1,2,3]", result);
@@ -24,7 +26,7 @@ public class PatchTests
     public void ApplyPatchJson_InvalidJson_ThrowsWithDescription()
     {
         var ex = Assert.Throws<JadipaErrorException>(() =>
-            Jadipa.ApplyPatchJson("{", "[]"));
+            Patch.ApplyJson("{", "[]"));
 
         Assert.Contains("JSON", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -33,8 +35,18 @@ public class PatchTests
     public void ApplyPatchJson_InvalidPatch_ThrowsWithDescription()
     {
         var ex = Assert.Throws<JadipaErrorException>(() =>
-            Jadipa.ApplyPatchJson("""{"name":"old"}""", """{"op":"replace"}"""));
+            Patch.ApplyJson("""{"name":"old"}""", """{"op":"replace"}"""));
 
         Assert.NotEmpty(ex.Message);
+    }
+
+    private static void AssertJsonEqual(string expected, string actual)
+    {
+        var expectedJson = JsonNode.Parse(expected);
+        var actualJson = JsonNode.Parse(actual);
+
+        Assert.True(
+            JsonNode.DeepEquals(expectedJson, actualJson),
+            $"Expected JSON {expectedJson}, got {actualJson}");
     }
 }
