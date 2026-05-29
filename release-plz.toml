@@ -11,16 +11,20 @@ release = true
 git_release_enable = true
 git_tag_enable = true
 changelog_update = true
+changelog_include = ["jadipa-ffi"]
 changelog_path = "./CHANGELOG.md"
 publish_all_features = true
+version_group = "jadipa"
 
 [[package]]
 name = "jadipa-ffi"
+release = true
 publish = false
-release = false
 git_release_enable = false
 git_tag_enable = false
 changelog_update = false
+version_group = "jadipa"
+semver_check = false
 
 [changelog]
 commit_parsers = [
