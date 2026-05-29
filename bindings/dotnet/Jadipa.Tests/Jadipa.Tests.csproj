@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Jadipa"
-      Version="*" />
+      Version="0.0.0" />
     <PackageReference Include="coverlet.collector"
       Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk"

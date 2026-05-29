@@ -1,9 +1,9 @@
-use jadipa::{JadipaError, apply_patch_json};
+use jadipa::{JadipaError, Patch};
 use serde_json::json;
 
 #[test]
 fn applies_patch_json() {
-    let result = apply_patch_json(
+    let result = Patch::apply_json(
         r#"{"name":"old","tags":["stable"]}"#,
         r#"[
             {"op":"replace","path":"/name","value":"new"},
@@ -22,7 +22,7 @@ fn applies_patch_json() {
 
 #[test]
 fn invalid_target_json_returns_invalid_json_error() {
-    let result = apply_patch_json(
+    let result = Patch::apply_json(
         r#"{"name":"old""#,
         r#"[{"op":"replace","path":"/name","value":"new"}]"#,
     );
@@ -38,7 +38,7 @@ fn invalid_target_json_returns_invalid_json_error() {
 
 #[test]
 fn invalid_patch_document_returns_invalid_patch_error() {
-    let result = apply_patch_json(
+    let result = Patch::apply_json(
         r#"{"name":"old"}"#,
         r#"{"op":"replace","path":"/name","value":"new"}"#,
     );
@@ -54,7 +54,7 @@ fn invalid_patch_document_returns_invalid_patch_error() {
 
 #[test]
 fn missing_target_path_returns_patch_application_error() {
-    let result = apply_patch_json(
+    let result = Patch::apply_json(
         r#"{"name":"old"}"#,
         r#"[{"op":"replace","path":"/missing","value":"new"}]"#,
     );
