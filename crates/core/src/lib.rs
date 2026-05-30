@@ -33,8 +33,8 @@
     cfg_attr(doc, doc = ::document_features::document_features!())
 )]
 
-// #[cfg(feature = "diff")]
-// pub mod diff;
+#[cfg(feature = "diff")]
+pub mod diff;
 
 #[cfg(feature = "merge_patch")]
 pub mod merge_patch;
