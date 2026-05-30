@@ -68,13 +68,41 @@ impl MergePatch {
             })?;
 
         let patch: serde_json::Value =
-            serde_json::from_str(patch_json).map_err(|err| JadipaError::InvalidPatch {
+            serde_json::from_str(patch_json).map_err(|err| JadipaError::InvalidJson {
                 message: err.to_string(),
             })?;
 
         jadipa_core::merge_patch::apply_mut(&mut target, &patch);
 
         serde_json::to_string(&target).map_err(|err| JadipaError::Serialization {
+            message: err.to_string(),
+        })
+    }
+}
+
+pub struct Diff;
+
+#[export]
+impl Diff {
+    /// Creates a JSON Patch document that transforms source JSON into target JSON.
+    ///
+    /// Both inputs must contain valid JSON values. The returned string contains
+    /// a JSON Patch operation array generated from the two documents. The patch
+    /// uses `add`, `remove`, and `replace` operations and can be applied to the
+    /// source document to produce the target document.
+    pub fn diff_json(source_json: &str, target_json: &str) -> Result<String, JadipaError> {
+        let source: serde_json::Value =
+            serde_json::from_str(source_json).map_err(|err| JadipaError::InvalidJson {
+                message: err.to_string(),
+            })?;
+        let target: serde_json::Value =
+            serde_json::from_str(target_json).map_err(|err| JadipaError::InvalidJson {
+                message: err.to_string(),
+            })?;
+
+        let diff = jadipa_core::diff::diff(&source, &target);
+
+        serde_json::to_string(&diff).map_err(|err| JadipaError::Serialization {
             message: err.to_string(),
         })
     }

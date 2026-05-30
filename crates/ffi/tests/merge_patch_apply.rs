@@ -39,14 +39,14 @@ fn applies_merge_patch_json() {
 }
 
 #[test]
-fn invalid_merge_patch_json_returns_invalid_patch_error() {
+fn invalid_merge_patch_json_returns_invalid_json_error() {
     let result = MergePatch::apply_json(r#"{"name":"old"}"#, r#"{"name":"new""#);
 
     match result {
-        Err(JadipaError::InvalidPatch { message }) => {
+        Err(JadipaError::InvalidJson { message }) => {
             assert!(message.contains("EOF"));
         }
-        Ok(_) => panic!("expected invalid patch error"),
-        Err(_) => panic!("expected invalid patch error"),
+        Ok(_) => panic!("expected invalid JSON error"),
+        Err(_) => panic!("expected invalid JSON error"),
     }
 }
