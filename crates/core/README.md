@@ -6,6 +6,7 @@ The crate is built around `serde_json::Value` and currently exposes:
 
 - `pointer`: JSON Pointer support as defined by [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901).
 - `patch`: JSON Patch support as defined by [RFC 6902](https://www.rfc-editor.org/rfc/rfc6902).
+- `diff`: JSON Patch diff generation.
 - `merge_patch`: JSON Merge Patch support as defined by [RFC 7396](https://www.rfc-editor.org/rfc/rfc7396).
 
 ## Install
@@ -17,7 +18,7 @@ cargo add jadipa
 ## Features
 
 - `patch`: enables JSON Patch parsing and application.
-- `diff`: reserved for JSON Patch diff generation; depends on `patch`.
+- `diff`: enables JSON Patch diff generation; depends on `patch`.
 - `merge_patch`: enables JSON Merge Patch application.
 
 Default features: `patch`, `diff`.
@@ -55,6 +56,36 @@ assert_eq!(target, json!({
 Patch operations are applied in order. Application stops at the first failing operation. `apply` returns a patched clone and does not mutate the input value.
 
 Supported operations: `add`, `remove`, `replace`, `move`, `copy`, `test`.
+
+## JSON Patch Diff
+
+The `diff` module creates a JSON Patch that transforms one `serde_json::Value` into another.
+
+```rust
+use jadipa::diff;
+use serde_json::json;
+
+let source = json!({
+    "title": "Draft release notes",
+    "status": "draft",
+    "tags": ["release", "internal"],
+    "temporary": true
+});
+
+let target = json!({
+    "title": "Draft release notes",
+    "status": "published",
+    "tags": ["release", "json-patch", "internal"]
+});
+
+let patch = diff::diff(&source, &target);
+let patched = patch.apply(&source).unwrap();
+
+assert_eq!(patched, target);
+assert_eq!(source["status"], "draft");
+```
+
+Generated patches use `add`, `remove`, and `replace` operations. Equal values return an empty patch. Objects are compared recursively. Arrays keep shared prefixes and suffixes, then replace, remove, or add values in the changed middle section. Generated patches are valid JSON Patch documents, but they are not guaranteed to be the shortest possible patches.
 
 ## JSON Merge Patch
 

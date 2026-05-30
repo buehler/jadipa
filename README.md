@@ -2,11 +2,11 @@
 
 Jadipa is a JSON DiffPatch project centered on standards-based JSON document mutation.
 
-The Rust core currently provides JSON Pointer support ([RFC 6901](https://www.rfc-editor.org/rfc/rfc6901)), JSON Patch support ([RFC 6902](https://www.rfc-editor.org/rfc/rfc6902)), and JSON Merge Patch support ([RFC 7396](https://www.rfc-editor.org/rfc/rfc7396)). The .NET binding exposes the patch APIs through a NuGet package backed by native Rust binaries.
+The Rust core currently provides JSON Pointer support ([RFC 6901](https://www.rfc-editor.org/rfc/rfc6901)), JSON Patch support ([RFC 6902](https://www.rfc-editor.org/rfc/rfc6902)), JSON Patch diff generation, and JSON Merge Patch support ([RFC 7396](https://www.rfc-editor.org/rfc/rfc7396)). The .NET binding exposes the patch, diff, and merge patch APIs through a NuGet package backed by native Rust binaries.
 
 ## Repository Layout
 
-- `crates/core`: Rust library for JSON pointers, JSON Patch, and JSON Merge Patch.
+- `crates/core`: Rust library for JSON pointers, JSON Patch, JSON Patch diff generation, and JSON Merge Patch.
 - `crates/ffi`: FFI layer used to expose core functionality to bindings.
 - `bindings/dotnet/Jadipa`: .NET package project.
 - `bindings/dotnet/Jadipa.Tests`: .NET binding tests.
@@ -66,7 +66,10 @@ The .NET package exposes:
 
 ```csharp
 Jadipa.Patch.ApplyJson(string targetJson, string patchJson)
+Jadipa.Diff.DiffJson(string sourceJson, string targetJson)
 Jadipa.MergePatch.ApplyJson(string targetJson, string patchJson)
 ```
 
-Both methods return the patched JSON as a compact string and throw `JadipaErrorException` for invalid target JSON, invalid patch documents, patch application failures where applicable, or serialization failures. `Patch.ApplyJson` expects a JSON Patch operation array. `MergePatch.ApplyJson` expects any valid JSON Merge Patch value.
+`Patch.ApplyJson` and `MergePatch.ApplyJson` return the patched JSON as a compact string. `Diff.DiffJson` returns a compact JSON Patch operation array that transforms `sourceJson` into `targetJson`; the generated patch uses `add`, `remove`, and `replace` operations.
+
+The methods throw `JadipaErrorException` for invalid JSON, invalid patch documents, patch application failures where applicable, or serialization failures. `Patch.ApplyJson` expects a JSON Patch operation array. `MergePatch.ApplyJson` expects any valid JSON Merge Patch value.

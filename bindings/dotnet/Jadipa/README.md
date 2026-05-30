@@ -2,7 +2,7 @@
 
 Jadipa is a .NET binding for the Jadipa JSON DiffPatch core library.
 
-The package applies JSON Patch documents as defined by [RFC 6902](https://www.rfc-editor.org/rfc/rfc6902) to JSON values addressed with JSON Pointer paths as defined by [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901). It also applies JSON Merge Patch documents as defined by [RFC 7396](https://www.rfc-editor.org/rfc/rfc7396).
+The package applies JSON Patch documents as defined by [RFC 6902](https://www.rfc-editor.org/rfc/rfc6902) to JSON values addressed with JSON Pointer paths as defined by [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901). It can also generate JSON Patch documents by diffing two JSON values, and apply JSON Merge Patch documents as defined by [RFC 7396](https://www.rfc-editor.org/rfc/rfc7396).
 
 ## Installation
 
@@ -59,6 +59,48 @@ catch (JadipaErrorException ex)
 ```
 
 `Patch.ApplyJson` returns a new compact JSON string. The input JSON string is not modified.
+
+## JSON Diff Usage
+
+```csharp
+using Jadipa;
+
+var sourceJson = """
+{
+  "title": "Draft release notes",
+  "status": "draft",
+  "tags": ["release", "internal"],
+  "metadata": {
+    "reviewed": false
+  },
+  "temporary": true
+}
+""";
+
+var targetJson = """
+{
+  "title": "Draft release notes",
+  "status": "published",
+  "tags": ["release", "json-patch", "internal"],
+  "metadata": {
+    "reviewed": true
+  }
+}
+""";
+
+try
+{
+    var patchJson = Diff.DiffJson(sourceJson, targetJson);
+    var patchedJson = Patch.ApplyJson(sourceJson, patchJson);
+    Console.WriteLine(patchedJson);
+}
+catch (JadipaErrorException ex)
+{
+    Console.Error.WriteLine(ex.Message);
+}
+```
+
+`Diff.DiffJson` returns a compact JSON Patch operation array that transforms the source JSON into the target JSON. Generated patches use `add`, `remove`, and `replace` operations. Object members are compared recursively. Arrays keep shared prefixes and suffixes, then replace, remove, or add values in the changed middle section. Generated patches are valid JSON Patch documents, but they are not guaranteed to be the shortest possible patches.
 
 ## JSON Patch
 
@@ -146,6 +188,8 @@ Error variants:
 - `JadipaError.InvalidPatch`: the patch document could not be parsed as JSON Patch or JSON Merge Patch.
 - `JadipaError.PatchApplication`: a patch operation failed, for example because a path was missing, an array index was invalid, or a `test` operation failed.
 - `JadipaError.Serialization`: the patched value could not be serialized back to JSON.
+
+For `Diff.DiffJson`, `JadipaError.InvalidJson` means either the source JSON or target JSON could not be parsed.
 
 ```csharp
 try
